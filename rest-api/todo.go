@@ -7,8 +7,8 @@ import (
 
 // Todo Struct : Data structure for a Todo
 type Todo struct {
-	ID        string `json:"id",omitempty`
-	Name      string `json:"name,omitempty`
+	ID        string `json:"id"`
+	Name      string `json:"name"`
 	Completed bool   `json:"completed"`
 }
 
@@ -28,4 +28,9 @@ func GetAllTodos(w http.ResponseWriter, r *http.Request) {
 	})
 
 	json.NewEncoder(w).Encode(todos)
+}
+
+// GetTodo : Returns a Todo by ID
+func GetTodo(w http.ResponseWriter, r *http.Request) {
+
 }
