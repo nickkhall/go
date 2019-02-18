@@ -2,7 +2,6 @@ package todo
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -39,7 +38,6 @@ func GetTodo(w http.ResponseWriter, r *http.Request) {
 	todos := PopulateTodos()
 
 	for _, todo := range todos {
-		fmt.Println(todo)
 		if todo.ID == todoID {
 			json.NewEncoder(w).Encode(todo)
 		}
