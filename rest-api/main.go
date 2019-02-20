@@ -16,7 +16,7 @@ import (
 func main() {
 	var err error
 
-	database.DBCon, err = sql.Open("postgres", "my secret informaTiOn")
+	database.DBCon, err = sql.Open("postgres", "youAintGetnMaSensInf")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -32,6 +32,7 @@ func main() {
 
 	router := mux.NewRouter()
 	router.HandleFunc("/todos", todo.GetTodos).Methods("GET")
+  router.HandleFunc("/todos", todo.CreateTodo).Methods("POST")
 
 	log.Fatal(http.ListenAndServe(":3000", router))
 }

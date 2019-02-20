@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"log"
+  "io/ioutil"
 
 	database "github.com/nickkhall/go/rest-api/database"
 )
@@ -41,5 +42,30 @@ func GetTodos(w http.ResponseWriter,  r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(todos)
+}
+
+// CreateTodo : Creates a Todo
+func CreateTodo(w http.ResponseWriter, r *http.Request) {
+  reqBody, err := ioutil.ReadAll(r.Body)
+  if err != nil {
+    log.Fatal(err)
+  }
+
+  var todo Todo
+
+  err = json.Unmarshal(reqBody, &todo)
+  if err != nil {
+    log.Fatal(err)
+  }
+  
+  sqlStatement := `
+  INSERT INTO tododb (id, name, completed)
+  VALUES ($1, $2, $3)
+  `
+
+  _, dbErr := database.DBCon.Exec(sqlStatement, int(todo.ID), string(todo.Name), bool(todo.Completed))
+  if err != nil {
+    log.Fatal(dbErr)
+  }
 }
 
