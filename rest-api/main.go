@@ -16,7 +16,7 @@ import (
 func main() {
 	var err error
 
-	database.DBCon, err = sql.Open("postgres", "host=localhost port=5432 user=postgres password=postgres dbname=nickhall sslmode=disable")
+	database.DBCon, err = sql.Open("postgres", "deets")
 	if err != nil {
 		log.Fatal(err)
 	}
