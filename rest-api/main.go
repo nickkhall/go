@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"database/sql"
+	"fmt"
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
@@ -17,15 +18,16 @@ const (
 	port     = 5432
 	user     = "postgres"
 	password = "postgres"
-	dbname   = "tododb"
+	dbname   = "todos"
 )
 
 func main() {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s " +
 	"password=%s dbname=%s",
-	host, port, user, password, dbname
-)
+	host, port, user, password, dbname)
+
 	var err error
+
 	database.DBCon, err = sql.Open("postgres", psqlInfo)
 	if err != nil {
 		log.Fatal(err)
@@ -35,10 +37,10 @@ func main() {
 
 	err = database.DBCon.Ping()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
-	fmt.PrintLn("Successfull connected! Running server on port 3000")
+	fmt.Println("Successfull connected! Running server on port 3000")
 
 	router := mux.NewRouter()
 	router.HandleFunc("/todos", todo.GetTodos).Methods("GET")
