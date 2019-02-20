@@ -13,22 +13,10 @@ import (
 	database "github.com/nickkhall/go/rest-api/database"
 )
 
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "postgres"
-	dbname   = "todos"
-)
-
 func main() {
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s " +
-	"password=%s dbname=%s",
-	host, port, user, password, dbname)
-
 	var err error
 
-	database.DBCon, err = sql.Open("postgres", psqlInfo)
+	database.DBCon, err = sql.Open("postgres", "my secret informaTiOn")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -40,7 +28,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Successfull connected! Running server on port 3000")
+	fmt.Println("Successfully connected! Running server on port 3000")
 
 	router := mux.NewRouter()
 	router.HandleFunc("/todos", todo.GetTodos).Methods("GET")

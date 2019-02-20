@@ -17,7 +17,7 @@ type Todo struct {
 // GetTodos : Gets all todos
 func GetTodos(w http.ResponseWriter,  r *http.Request) {
 	todos := []Todo{}
-	rows, err := database.DBCon.Query("SELECT id, name, completed FROM tododb")
+	rows, err := database.DBCon.Query("SELECT * FROM tododb;")
 
 	if err != nil {
 		log.Fatal(err)
