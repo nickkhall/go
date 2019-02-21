@@ -8,6 +8,7 @@ import (
 
   "github.com/gorilla/mux"
 	database "github.com/nickkhall/go/rest-api/database"
+	errors "github.com/nickkhall/go/rest-api/errors"
 )
 
 type Todo struct {
@@ -16,22 +17,10 @@ type Todo struct {
 	Completed bool   `json:"completed"`
 }
 
-type Error struct {
-  Status  int64 `json:"status"`
-  Message string `json:"message"`
-}
-
-// ReturnError : Returns the Error struct with a custom message
-func ReturnError(error *Error, errStatus int64, errMsg string) Error {
-  *Error.Status = errStatus
-  *Error.Message = errMsg
-  return Error
-}
-
 // GetTodos : Gets all todos
 func GetTodos(w http.ResponseWriter,  r *http.Request) {
 	todos := []Todo{}
-	rows, err := database.DBCon.Query("SELECT * FROM tododb;")
+	rows, err := database.DBCon.Query("SELECT * FROM todos;")
 
 	if err != nil {
 		log.Fatal(err)
@@ -84,35 +73,36 @@ func CreateTodo(w http.ResponseWriter, r *http.Request) {
 
 // GetTodo : Gets a single Todo
 func GetTodo(w http.ResponseWriter, r *http.Request) {
-  todoId := mux.Vars(r)["id"]
+	todoId := mux.Vars(r)["id"]
 
-  sqlStatement := `
-  SELECT EXISTS (SELECT * FROM tododb WHERE id=$1);
-  `
+  	sqlStatement := `
+  	SELECT EXISTS (SELECT * FROM todos WHERE id=$1);
+  	`
 
-  rows, dbErr := database.DBCon.Query(sqlStatement, todoId)
-  if dbErr != nil {
-    log.Fatal(dbErr)
-  }
+  	rows, dbErr := database.DBCon.Query(sqlStatement, todoId)
+  	if dbErr != nil {
+    		log.Fatal(dbErr)
+ 	 }
 
-  todo := Todo{}
+  	todo := Todo{}
 
-  defer rows.Close()
+  	defer rows.Close()
 
-  for rows.Next() {
-    var id        int64
-    var name      string
-    var completed bool
+ 	for rows.Next() {
+    		var id        int64
+    		var name      string
+    		var completed bool
 
-    err := rows.Scan(&id, &name, &completed)
-    if err != nil {
-      getErr := ReturnError(Error, 404, "Todo does not exist.")
-      json.NewEncoder(w).Encode(Error)
-    }
+    		err := rows.Scan(&id, &name, &completed)
+    		if err != nil {
+			getTodoErr := errors.New(404, "Todo does not exist")
+			json.NewEncoder(w).Encode(getTodoErr)
+			return
+    		}
 
-    todo = Todo{id, name, completed}
-  }
+    		todo = Todo{id, name, completed}
+ 	}
 
-  json.NewEncoder(w).Encode(todo)
+  	json.NewEncoder(w).Encode(todo)
 }
 

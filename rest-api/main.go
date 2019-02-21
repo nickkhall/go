@@ -16,7 +16,7 @@ import (
 func main() {
 	var err error
 
-	database.DBCon, err = sql.Open("postgres", "deets")
+	database.DBCon, err = sql.Open("postgres", "host=localhost port=5432 user=postgres password=postgres sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -32,8 +32,8 @@ func main() {
 
 	router := mux.NewRouter()
 	router.HandleFunc("/todos", todo.GetTodos).Methods("GET")
-  router.HandleFunc("/todos", todo.CreateTodo).Methods("POST")
-  router.HandleFunc("/todos/{id}", todo.GetTodo).Methods("GET")
+  	router.HandleFunc("/todos", todo.CreateTodo).Methods("POST")
+  	router.HandleFunc("/todos/{id}", todo.GetTodo).Methods("GET")
 
 	log.Fatal(http.ListenAndServe(":3000", router))
 }
