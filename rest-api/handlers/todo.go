@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"log"
-  "io/ioutil"
+  	"io/ioutil"
 
-  "github.com/gorilla/mux"
+  	"github.com/gorilla/mux"
 	database "github.com/nickkhall/go/rest-api/database"
 	errors "github.com/nickkhall/go/rest-api/errors"
 )
@@ -48,27 +48,27 @@ func GetTodos(w http.ResponseWriter,  r *http.Request) {
 
 // CreateTodo : Creates a Todo
 func CreateTodo(w http.ResponseWriter, r *http.Request) {
-  reqBody, err := ioutil.ReadAll(r.Body)
-  if err != nil {
-    log.Fatal(err)
-  }
+	reqBody, err := ioutil.ReadAll(r.Body)
+  	if err != nil {
+    		log.Fatal(err)
+  	}
 
-  var todo Todo
+  	var todo Todo
 
-  err = json.Unmarshal(reqBody, &todo)
-  if err != nil {
-    log.Fatal(err)
-  }
+  	err = json.Unmarshal(reqBody, &todo)
+  	if err != nil {
+    		log.Fatal(err)
+  	}
   
-  sqlStatement := `
-  INSERT INTO tododb (id, name, completed)
-  VALUES ($1, $2, $3)
-  `
+ 	sqlStatement := `
+  	INSERT INTO tododb (id, name, completed)
+  	VALUES ($1, $2, $3)
+  	`
 
-  _, dbErr := database.DBCon.Exec(sqlStatement, int(todo.ID), string(todo.Name), bool(todo.Completed))
-  if err != nil {
-    log.Fatal(dbErr)
-  }
+  	_, dbErr := database.DBCon.Exec(sqlStatement, int(todo.ID), string(todo.Name), bool(todo.Completed))
+  	if err != nil {
+    		log.Fatal(dbErr)
+  	}
 }
 
 // GetTodo : Gets a single Todo
@@ -95,12 +95,17 @@ func GetTodo(w http.ResponseWriter, r *http.Request) {
 
     		err := rows.Scan(&id, &name, &completed)
     		if err != nil {
-			getTodoErr := errors.New(404, "Todo does not exist")
-			json.NewEncoder(w).Encode(getTodoErr)
+			errStruct := errors.New(404, "Todo does not exist")
+			e, jsonErr := json.Marshal(errStruct)
+			if jsonErr != nil {
+				log.Fatal(err)
+			}
+
+			json.NewEncoder(w).Encode(e)
 			return
     		}
 
-    		todo = Todo{id, name, completed}
+			todo = Todo{id, name, completed}
  	}
 
   	json.NewEncoder(w).Encode(todo)

@@ -1,13 +1,13 @@
 package errors
 
 type CustomError struct {
-	status  int64
-	message string
+	Status  int64  `json:"status"`
+	Message string `json:"message"`
 }
 
-func New(statusCode int64, messageText string) *CustomError {
+func New(statusCode int64, messageText string)* CustomError {
 	return &CustomError{
-		status: statusCode,
-		message: messageText,
+		Status: statusCode,
+		Message: messageText,
 	}
 }
