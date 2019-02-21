@@ -78,14 +78,16 @@ func GetTodo(w http.ResponseWriter, r *http.Request) {
 	var id        string
 	var name      string
 	var completed bool
+  var todo Todo
 
-	dbErr := database.DBCon.QueryRowContext(context.Background(), "SELECT * FROM todos WHERE id=?", todoId).Scan(&id, &name, &completed)
-	if dbErr != nil {
-		errors.ErrorResponse(w, 404, "Todo does not exist")
-		return
-	}
-
-	todo := Todo{id, name, completed}
+	err := database.DBCon.QueryRowContext(context.Background(), "SELECT * FROM todos WHERE id = $1", todoId).Scan(&id, &name, &completed)
+	switch {
+    case err != nil:
+      log.Fatal(err)
+      errors.ErrorResponse(w, 404, "Todo does not exist")
+    default:
+      todo = Todo{id, name, completed}
+  }
 
 	json.NewEncoder(w).Encode(todo)
 }
