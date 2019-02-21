@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"log"
   	"io/ioutil"
+	"context"
 
   	"github.com/gorilla/mux"
 	database "github.com/nickkhall/go/rest-api/database"
@@ -12,7 +13,7 @@ import (
 )
 
 type Todo struct {
-	ID        int64  `json:"id"`
+	ID        string `json:"id"`
 	Name      string `json:"name"`
 	Completed bool   `json:"completed"`
 }
@@ -29,7 +30,7 @@ func GetTodos(w http.ResponseWriter,  r *http.Request) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var id        int64
+		var id        string
 		var name      string
 		var completed bool
 
@@ -65,7 +66,7 @@ func CreateTodo(w http.ResponseWriter, r *http.Request) {
   	VALUES ($1, $2, $3)
   	`
 
-  	_, dbErr := database.DBCon.Exec(sqlStatement, int(todo.ID), string(todo.Name), bool(todo.Completed))
+  	_, dbErr := database.DBCon.Exec(sqlStatement, string(todo.ID), string(todo.Name), bool(todo.Completed))
   	if err != nil {
     		log.Fatal(dbErr)
   	}
@@ -75,38 +76,17 @@ func CreateTodo(w http.ResponseWriter, r *http.Request) {
 func GetTodo(w http.ResponseWriter, r *http.Request) {
 	todoId := mux.Vars(r)["id"]
 
-  	sqlStatement := `
-  	SELECT EXISTS (SELECT * FROM todos WHERE id=$1);
-  	`
+	var id        string
+	var name      string
+	var completed bool
 
-  	rows, dbErr := database.DBCon.Query(sqlStatement, todoId)
+  	dbErr := database.DBCon.QueryRowContext(context.Background(), "SELECT * FROM todos WHERE id=?", todoId).Scan(&id, &name, &completed)
   	if dbErr != nil {
-    		log.Fatal(dbErr)
- 	 }
+    		errors.ErrorResponse(w, 404, "Todo does not exist")
+		return
+	}
 
-  	todo := Todo{}
-
-  	defer rows.Close()
-
- 	for rows.Next() {
-    		var id        int64
-    		var name      string
-    		var completed bool
-
-    		err := rows.Scan(&id, &name, &completed)
-    		if err != nil {
-			errStruct := errors.New(404, "Todo does not exist")
-			e, jsonErr := json.Marshal(errStruct)
-			if jsonErr != nil {
-				log.Fatal(err)
-			}
-
-			json.NewEncoder(w).Encode(e)
-			return
-    		}
-
-			todo = Todo{id, name, completed}
- 	}
+  	todo := Todo{id, name, completed}
 
   	json.NewEncoder(w).Encode(todo)
 }
