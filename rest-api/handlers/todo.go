@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"net/http"
 	"log"
-  	"io/ioutil"
+	"io/ioutil"
 	"context"
 
-  	"github.com/gorilla/mux"
+	"github.com/gorilla/mux"
 	database "github.com/nickkhall/go/rest-api/database"
 	errors "github.com/nickkhall/go/rest-api/errors"
 )
@@ -41,7 +41,6 @@ func GetTodos(w http.ResponseWriter,  r *http.Request) {
 
 		todo := Todo{id, name, completed}
 		todos = append(todos, todo)
-
 	}
 
 	json.NewEncoder(w).Encode(todos)
@@ -50,26 +49,26 @@ func GetTodos(w http.ResponseWriter,  r *http.Request) {
 // CreateTodo : Creates a Todo
 func CreateTodo(w http.ResponseWriter, r *http.Request) {
 	reqBody, err := ioutil.ReadAll(r.Body)
-  	if err != nil {
-    		log.Fatal(err)
-  	}
+	if err != nil {
+		log.Fatal(err)
+	}
 
-  	var todo Todo
+	var todo Todo
 
-  	err = json.Unmarshal(reqBody, &todo)
-  	if err != nil {
-    		log.Fatal(err)
-  	}
-  
- 	sqlStatement := `
-  	INSERT INTO tododb (id, name, completed)
-  	VALUES ($1, $2, $3)
-  	`
+	err = json.Unmarshal(reqBody, &todo)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-  	_, dbErr := database.DBCon.Exec(sqlStatement, string(todo.ID), string(todo.Name), bool(todo.Completed))
-  	if err != nil {
-    		log.Fatal(dbErr)
-  	}
+	sqlStatement := `
+	INSERT INTO tododb (id, name, completed)
+	VALUES ($1, $2, $3)
+	`
+
+	_, dbErr := database.DBCon.Exec(sqlStatement, string(todo.ID), string(todo.Name), bool(todo.Completed))
+	if err != nil {
+		log.Fatal(dbErr)
+	}
 }
 
 // GetTodo : Gets a single Todo
@@ -80,14 +79,13 @@ func GetTodo(w http.ResponseWriter, r *http.Request) {
 	var name      string
 	var completed bool
 
-  	dbErr := database.DBCon.QueryRowContext(context.Background(), "SELECT * FROM todos WHERE id=?", todoId).Scan(&id, &name, &completed)
-  	if dbErr != nil {
-    		errors.ErrorResponse(w, 404, "Todo does not exist")
+	dbErr := database.DBCon.QueryRowContext(context.Background(), "SELECT * FROM todos WHERE id=?", todoId).Scan(&id, &name, &completed)
+	if dbErr != nil {
+		errors.ErrorResponse(w, 404, "Todo does not exist")
 		return
 	}
 
-  	todo := Todo{id, name, completed}
+	todo := Todo{id, name, completed}
 
-  	json.NewEncoder(w).Encode(todo)
+	json.NewEncoder(w).Encode(todo)
 }
-

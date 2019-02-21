@@ -5,5 +5,5 @@ import (
 )
 
 var (
-  DBCon *sql.DB
+	DBCon *sql.DB
 )
