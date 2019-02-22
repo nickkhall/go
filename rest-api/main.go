@@ -35,6 +35,7 @@ func main() {
   router.HandleFunc("/todos", todo.CreateTodo).Methods("POST")
   router.HandleFunc("/todos/{id}", todo.GetTodo).Methods("GET")
   router.HandleFunc("/todos/{id}", todo.UpdateTodo).Methods("PUT")
+  router.HandleFunc("/todos/{id}", todo.DeleteTodo).Methods("DELETE")
 
 	log.Fatal(http.ListenAndServe(":3000", router))
 }
