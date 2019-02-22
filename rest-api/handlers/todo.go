@@ -61,7 +61,7 @@ func CreateTodo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sqlStatement := `
-	INSERT INTO tododb (id, name, completed)
+	INSERT INTO todos (id, name, completed)
 	VALUES ($1, $2, $3)
 	`
 
@@ -69,6 +69,8 @@ func CreateTodo(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(dbErr)
 	}
+  
+  json.NewEncoder(w).Encode(todo)
 }
 
 // GetTodo : Gets a single Todo
@@ -78,18 +80,18 @@ func GetTodo(w http.ResponseWriter, r *http.Request) {
 	var id        string
 	var name      string
 	var completed bool
-  	var todo Todo
+  var todo Todo
 
 	err := database.DBCon.QueryRowContext(context.Background(), "SELECT * FROM todos WHERE id = $1", todoId).Scan(&id, &name, &completed)
 
-  	switch {
-    		case err != nil:
-      			e := errors.CustomError{404, "Todo does not exist"}
-      			json.NewEncoder(w).Encode(e)
-      			return
-    		default:
-      			todo = Todo{id, name, completed}
-  	}
+  switch {
+    case err != nil:
+      e := errors.CustomError{404, "Todo does not exist"}
+      json.NewEncoder(w).Encode(e)
+      return
+    default:
+      todo = Todo{id, name, completed}
+  }
 
 	json.NewEncoder(w).Encode(todo)
 }
