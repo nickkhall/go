@@ -93,7 +93,7 @@ func CreateTodo(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(dbErr)
 	}
 
-  json.NewEncoder(w).Encode(todo)
+	json.NewEncoder(w).Encode(todo)
 }
 
 
