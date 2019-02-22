@@ -126,15 +126,14 @@ func UpdateTodo(w http.ResponseWriter, r *http.Request) {
 
 // DeleteTodo : Deletes a Todo
 func DeleteTodo(w http.ResponseWriter, r *http.Request) {
-  todoId := mux.Vars(r)["id"]
+	todoId := mux.Vars(r)["id"]
 
-  sqlStatement := `
-  DELETE FROM todos WHERE id = $1;
-  `
+	sqlStatement := `
+	DELETE FROM todos WHERE id = $1;
+	`
 
-  _, dbErr := database.DBCon.Exec(sqlStatement, todoId)
-  if dbErr != nil {
-    log.Fatal(dbErr)
-  }
-
+	_, dbErr := database.DBCon.Exec(sqlStatement, todoId)
+	if dbErr != nil {
+		log.Fatal(dbErr)
+	}
 }
