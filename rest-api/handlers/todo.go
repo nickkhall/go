@@ -99,29 +99,29 @@ func CreateTodo(w http.ResponseWriter, r *http.Request) {
 
 // UpdateTodo : Updates an existing Todo
 func UpdateTodo(w http.ResponseWriter, r *http.Request) {
-  reqBody, err := ioutil.ReadAll(r.Body)
-  if err != nil {
-    e := errors.CustomError{400, "Bad Request"}
-    json.NewEncoder(w).Encode(e)
-  }
+	reqBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		e := errors.CustomError{400, "Bad Request"}
+		json.NewEncoder(w).Encode(e)
+	}
 
-  var todo Todo
+	var todo Todo
 
-  err = json.Unmarshal(reqBody, &todo)
-  if err != nil {
-    log.Fatal(err)
-  }
+	err = json.Unmarshal(reqBody, &todo)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-  sqlStatement := `
-  UPDATE todos SET name = $2, completed = $3 WHERE id = $1;
-  `
+	sqlStatement := `
+	UPDATE todos SET name = $2, completed = $3 WHERE id = $1;
+	`
 
-  _, dbErr := database.DBCon.Exec(sqlStatement, string(todo.ID), string(todo.Name), bool(todo.Completed))
-  if dbErr != nil {
-    log.Fatal(err)
-  }
+	_, dbErr := database.DBCon.Exec(sqlStatement, string(todo.ID), string(todo.Name), bool(todo.Completed))
+	if dbErr != nil {
+		log.Fatal(err)
+	}
 
-  json.NewEncoder(w).Encode(todo)
+	json.NewEncoder(w).Encode(todo)
 }
 
 // DeleteTodo : Deletes a Todo
