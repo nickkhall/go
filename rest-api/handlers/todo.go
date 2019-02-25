@@ -21,6 +21,12 @@ type Todo struct {
 
 type UUID [16]byte
 
+// Temporary func placement
+// enableCors : Enables CORS
+func enableCors(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+}
+
 // GetTodos : Gets all todos
 func GetTodos(w http.ResponseWriter,  r *http.Request) {
 	todos := []Todo{}
@@ -46,6 +52,7 @@ func GetTodos(w http.ResponseWriter,  r *http.Request) {
 		todos = append(todos, todo)
 	}
 
+	enableCors(&w)
 	json.NewEncoder(w).Encode(todos)
 }
 
