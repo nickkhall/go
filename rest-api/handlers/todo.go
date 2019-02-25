@@ -76,6 +76,7 @@ func GetTodo(w http.ResponseWriter, r *http.Request) {
 			todo = Todo{id, name, completed}
 	}
 
+	enableCors(&w)
 	json.NewEncoder(w).Encode(todo)
 }
 
@@ -105,6 +106,7 @@ func CreateTodo(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(dbErr)
 	}
 
+	enableCors(&w)
 	json.NewEncoder(w).Encode(todo)
 }
 
@@ -136,12 +138,15 @@ func UpdateTodo(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
+	enableCors(&w)
 	json.NewEncoder(w).Encode(todo)
 }
 
 // DeleteTodo : Deletes a Todo
 func DeleteTodo(w http.ResponseWriter, r *http.Request) {
 	todoId := mux.Vars(r)["id"]
+
+	enableCors(&w)
 
 	sqlStatement := `
 	DELETE FROM todos WHERE id = $1;
