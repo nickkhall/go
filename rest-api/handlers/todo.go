@@ -8,6 +8,7 @@ import (
 	"context"
 
 	"github.com/gorilla/mux"
+	"github.com/google/uuid"
 	database "github.com/nickkhall/go/rest-api/database"
 	errors "github.com/nickkhall/go/rest-api/errors"
 )
@@ -17,6 +18,8 @@ type Todo struct {
 	Name      string `json:"name"`
 	Completed bool   `json:"completed"`
 }
+
+type UUID [16]byte
 
 // GetTodos : Gets all todos
 func GetTodos(w http.ResponseWriter,  r *http.Request) {
@@ -53,7 +56,7 @@ func GetTodo(w http.ResponseWriter, r *http.Request) {
 	var id        string
 	var name      string
 	var completed bool
-  	var todo Todo
+	var todo Todo
 
 	err := database.DBCon.QueryRowContext(context.Background(), "SELECT * FROM todos WHERE id = $1", todoId).Scan(&id, &name, &completed)
 
@@ -77,6 +80,8 @@ func CreateTodo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var todo Todo
+	todoId := uuid.New().String()
+	todo.ID = todoId
 
 	err = json.Unmarshal(reqBody, &todo)
 	if err != nil {
@@ -106,11 +111,14 @@ func UpdateTodo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var todo Todo
+	todoId := mux.Vars(r)["id"]
 
 	err = json.Unmarshal(reqBody, &todo)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	todo.ID = todoId
 
 	sqlStatement := `
 	UPDATE todos SET name = $2, completed = $3 WHERE id = $1;
