@@ -21,14 +21,6 @@ type Todo struct {
 	CreatedAt int64  `json:"createdAt"`
 }
 
-// type UUID [16]byte
-//
-// // Temporary func placement
-// // enableCors : Enables CORS
-// func enableCors(w *http.ResponseWriter) {
-// 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
-// }
-
 // GetTodos : Gets all todos
 func GetTodos(w http.ResponseWriter, r *http.Request) {
 	todos := []Todo{}
