@@ -6,6 +6,7 @@ import (
 	"log"
 	"io/ioutil"
 	"context"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/google/uuid"
@@ -17,9 +18,8 @@ type Todo struct {
 	ID        string `json:"id"`
 	Name      string `json:"name"`
 	Completed bool   `json:"completed"`
+	CreatedAt int64  `json:"createdAt"`
 }
-
-type UUID [16]byte
 
 // Temporary func placement
 // enableCors : Enables CORS
@@ -42,13 +42,14 @@ func GetTodos(w http.ResponseWriter,  r *http.Request) {
 		var id        string
 		var name      string
 		var completed bool
+		var createdAt int64
 
-		err = rows.Scan(&id, &name, &completed)
+		err = rows.Scan(&id, &name, &completed, &createdAt)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		todo := Todo{id, name, completed}
+		todo := Todo{id, name, completed, createdAt}
 		todos = append(todos, todo)
 	}
 
@@ -63,9 +64,10 @@ func GetTodo(w http.ResponseWriter, r *http.Request) {
 	var id        string
 	var name      string
 	var completed bool
+	var createdAt int64
 	var todo Todo
 
-	err := database.DBCon.QueryRowContext(context.Background(), "SELECT * FROM todos WHERE id = $1", todoId).Scan(&id, &name, &completed)
+	err := database.DBCon.QueryRowContext(context.Background(), "SELECT * FROM todos WHERE id = $1", todoId).Scan(&id, &name, &completed, &createdAt)
 
 	switch {
 		case err != nil:
@@ -73,7 +75,7 @@ func GetTodo(w http.ResponseWriter, r *http.Request) {
 			json.NewEncoder(w).Encode(e)
 			return
 		default:
-			todo = Todo{id, name, completed}
+			todo = Todo{id, name, completed, createdAt}
 	}
 
 	json.NewEncoder(w).Encode(todo)
@@ -87,8 +89,11 @@ func CreateTodo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var todo Todo
+	timestamp := time.Now().Unix()
 	todoId := uuid.New().String()
 	todo.ID = todoId
+	todo.CreatedAt = timestamp
+
 
 	err = json.Unmarshal(reqBody, &todo)
 	if err != nil {
@@ -96,11 +101,11 @@ func CreateTodo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sqlStatement := `
-	INSERT INTO todos (id, name, completed)
-	VALUES ($1, $2, $3)
+	INSERT INTO todos (id, name, completed, createdAt)
+	VALUES ($1, $2, $3, $4)
 	`
 
-	_, dbErr := database.DBCon.Exec(sqlStatement, string(todo.ID), string(todo.Name), bool(todo.Completed))
+	_, dbErr := database.DBCon.Exec(sqlStatement, string(todo.ID), string(todo.Name), bool(todo.Completed), timestamp)
 	if err != nil {
 		log.Fatal(dbErr)
 	}
