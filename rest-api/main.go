@@ -1,16 +1,17 @@
 package main
 
 import (
-	"log"
-	"net/http"
 	"database/sql"
 	"fmt"
+	"log"
+	"net/http"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 
-	todo "github.com/nickkhall/go/rest-api/handlers"
 	database "github.com/nickkhall/go/rest-api/database"
+	todo "github.com/nickkhall/go/rest-api/handlers"
 )
 
 func main() {
@@ -37,5 +38,5 @@ func main() {
 	router.HandleFunc("/todos/{id}", todo.UpdateTodo).Methods("PUT")
 	router.HandleFunc("/todos/{id}", todo.DeleteTodo).Methods("DELETE")
 
-	log.Fatal(http.ListenAndServe(":3000", router))
+	log.Fatal(http.ListenAndServe(":3000", handlers.CORS(handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}), handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}), handlers.AllowedOrigins([]string{"*"}))(router)))
 }

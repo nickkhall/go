@@ -1,15 +1,15 @@
 package todo
 
 import (
-	"encoding/json"
-	"net/http"
-	"log"
-	"io/ioutil"
 	"context"
+	"encoding/json"
+	"io/ioutil"
+	"log"
+	"net/http"
 	"time"
 
-	"github.com/gorilla/mux"
 	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 	database "github.com/nickkhall/go/rest-api/database"
 	errors "github.com/nickkhall/go/rest-api/errors"
 )
@@ -21,14 +21,16 @@ type Todo struct {
 	CreatedAt int64  `json:"createdAt"`
 }
 
-// Temporary func placement
-// enableCors : Enables CORS
-func enableCors(w *http.ResponseWriter) {
-	(*w).Header().Set("Access-Control-Allow-Origin", "*")
-}
+// type UUID [16]byte
+//
+// // Temporary func placement
+// // enableCors : Enables CORS
+// func enableCors(w *http.ResponseWriter) {
+// 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+// }
 
 // GetTodos : Gets all todos
-func GetTodos(w http.ResponseWriter,  r *http.Request) {
+func GetTodos(w http.ResponseWriter, r *http.Request) {
 	todos := []Todo{}
 	rows, err := database.DBCon.Query("SELECT * FROM todos;")
 
@@ -39,8 +41,8 @@ func GetTodos(w http.ResponseWriter,  r *http.Request) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var id        string
-		var name      string
+		var id string
+		var name string
 		var completed bool
 		var createdAt int64
 
@@ -53,7 +55,6 @@ func GetTodos(w http.ResponseWriter,  r *http.Request) {
 		todos = append(todos, todo)
 	}
 
-	enableCors(&w)
 	json.NewEncoder(w).Encode(todos)
 }
 
@@ -61,8 +62,8 @@ func GetTodos(w http.ResponseWriter,  r *http.Request) {
 func GetTodo(w http.ResponseWriter, r *http.Request) {
 	todoId := mux.Vars(r)["id"]
 
-	var id        string
-	var name      string
+	var id string
+	var name string
 	var completed bool
 	var createdAt int64
 	var todo Todo
@@ -70,12 +71,12 @@ func GetTodo(w http.ResponseWriter, r *http.Request) {
 	err := database.DBCon.QueryRowContext(context.Background(), "SELECT * FROM todos WHERE id = $1", todoId).Scan(&id, &name, &completed, &createdAt)
 
 	switch {
-		case err != nil:
-			e := errors.CustomError{404, "Todo does not exist"}
-			json.NewEncoder(w).Encode(e)
-			return
-		default:
-			todo = Todo{id, name, completed, createdAt}
+	case err != nil:
+		e := errors.CustomError{404, "Todo does not exist"}
+		json.NewEncoder(w).Encode(e)
+		return
+	default:
+		todo = Todo{id, name, completed, createdAt}
 	}
 
 	json.NewEncoder(w).Encode(todo)
@@ -94,7 +95,6 @@ func CreateTodo(w http.ResponseWriter, r *http.Request) {
 	todo.ID = todoId
 	todo.CreatedAt = timestamp
 
-
 	err = json.Unmarshal(reqBody, &todo)
 	if err != nil {
 		log.Fatal(err)
@@ -105,14 +105,13 @@ func CreateTodo(w http.ResponseWriter, r *http.Request) {
 	VALUES ($1, $2, $3, $4)
 	`
 
-	_, dbErr := database.DBCon.Exec(sqlStatement, string(todo.ID), string(todo.Name), bool(todo.Completed), timestamp)
+	_, dbErr := database.DBCon.Exec(sqlStatement, string(todo.ID), string(todo.Name), false, timestamp)
 	if err != nil {
 		log.Fatal(dbErr)
 	}
 
 	json.NewEncoder(w).Encode(todo)
 }
-
 
 // UpdateTodo : Updates an existing Todo
 func UpdateTodo(w http.ResponseWriter, r *http.Request) {
