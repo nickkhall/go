@@ -34,10 +34,12 @@ func GetTodos(w http.ResponseWriter, r *http.Request) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var id string
-		var name string
-		var completed bool
-		var createdAt int64
+		var (
+			id        string
+			name      string
+			completed bool
+			createdAt int64
+		)
 
 		err = rows.Scan(&id, &name, &completed, &createdAt)
 		if err != nil {
@@ -55,11 +57,13 @@ func GetTodos(w http.ResponseWriter, r *http.Request) {
 func GetTodo(w http.ResponseWriter, r *http.Request) {
 	todoID := mux.Vars(r)["id"]
 
-	var id string
-	var name string
-	var completed bool
-	var createdAt int64
-	var todo Todo
+	var (
+		id        string
+		name      string
+		completed bool
+		createdAt int64
+		todo      Todo
+	)
 
 	err := database.DBCon.QueryRowContext(context.Background(), "SELECT * FROM todos WHERE id = $1", todoID).Scan(&id, &name, &completed, &createdAt)
 
