@@ -14,6 +14,7 @@ import (
 	errors "github.com/nickkhall/go/rest-api/errors"
 )
 
+// Todo : Todo Structure
 type Todo struct {
 	ID        string `json:"id"`
 	Name      string `json:"name"`
@@ -52,7 +53,7 @@ func GetTodos(w http.ResponseWriter, r *http.Request) {
 
 // GetTodo : Gets a single Todo
 func GetTodo(w http.ResponseWriter, r *http.Request) {
-	todoId := mux.Vars(r)["id"]
+	todoID := mux.Vars(r)["id"]
 
 	var id string
 	var name string
@@ -60,11 +61,15 @@ func GetTodo(w http.ResponseWriter, r *http.Request) {
 	var createdAt int64
 	var todo Todo
 
-	err := database.DBCon.QueryRowContext(context.Background(), "SELECT * FROM todos WHERE id = $1", todoId).Scan(&id, &name, &completed, &createdAt)
+	err := database.DBCon.QueryRowContext(context.Background(), "SELECT * FROM todos WHERE id = $1", todoID).Scan(&id, &name, &completed, &createdAt)
 
 	switch {
 	case err != nil:
-		e := errors.CustomError{404, "Todo does not exist"}
+		e := errors.CustomError{
+			Status:  404,
+			Message: "Todo does not exist",
+		}
+
 		json.NewEncoder(w).Encode(e)
 		return
 	default:
@@ -83,8 +88,8 @@ func CreateTodo(w http.ResponseWriter, r *http.Request) {
 
 	var todo Todo
 	timestamp := time.Now().Unix()
-	todoId := uuid.New().String()
-	todo.ID = todoId
+	todoID := uuid.New().String()
+	todo.ID = todoID
 	todo.CreatedAt = timestamp
 
 	err = json.Unmarshal(reqBody, &todo)
@@ -109,19 +114,23 @@ func CreateTodo(w http.ResponseWriter, r *http.Request) {
 func UpdateTodo(w http.ResponseWriter, r *http.Request) {
 	reqBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		e := errors.CustomError{400, "Bad Request"}
+		e := errors.CustomError{
+			Status:  400,
+			Message: "Bad Request",
+		}
+
 		json.NewEncoder(w).Encode(e)
 	}
 
 	var todo Todo
-	todoId := mux.Vars(r)["id"]
+	todoID := mux.Vars(r)["id"]
 
 	err = json.Unmarshal(reqBody, &todo)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	todo.ID = todoId
+	todo.ID = todoID
 
 	sqlStatement := `
 	UPDATE todos SET name = $2, completed = $3 WHERE id = $1;
@@ -137,13 +146,13 @@ func UpdateTodo(w http.ResponseWriter, r *http.Request) {
 
 // DeleteTodo : Deletes a Todo
 func DeleteTodo(w http.ResponseWriter, r *http.Request) {
-	todoId := mux.Vars(r)["id"]
+	todoID := mux.Vars(r)["id"]
 
 	sqlStatement := `
 	DELETE FROM todos WHERE id = $1;
 	`
 
-	_, dbErr := database.DBCon.Exec(sqlStatement, todoId)
+	_, dbErr := database.DBCon.Exec(sqlStatement, todoID)
 	if dbErr != nil {
 		log.Fatal(dbErr)
 	}
