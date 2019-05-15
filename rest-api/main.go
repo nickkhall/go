@@ -38,5 +38,9 @@ func main() {
 	router.HandleFunc("/todos/{id}", todo.UpdateTodo).Methods("PUT")
 	router.HandleFunc("/todos/{id}", todo.DeleteTodo).Methods("DELETE")
 
-	log.Fatal(http.ListenAndServe(":3000", handlers.CORS(handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}), handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}), handlers.AllowedOrigins([]string{"*"}))(router)))
+	log.Fatal(http.ListenAndServe(":3000",
+		handlers.CORS(
+			handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}),
+			handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}),
+			handlers.AllowedOrigins([]string{"*"}))(router)))
 }
