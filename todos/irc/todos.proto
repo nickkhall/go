@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package todorpc;
+
+service Todo
+
+message Todo {
+	string ID = 1;
+	string Name = 2;
+	bool   Completed = 3;
+	int64  CreatedAt = 4;
+}
+
+message TodoRequest {
+	string ID = 1;
+}
+
+message TodoResponse {
+	Todo todo = 1;
+}
+
+message TodosRequest {}
+
+message TodosResponse {
+	repeated Todo todos = 1;
+}
